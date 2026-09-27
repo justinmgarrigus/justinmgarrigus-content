@@ -6,9 +6,9 @@
 
 # Your own button, shown in the sidebar for others to copy.
 [[me]]
-img = "/buttons/justinmgarrigus.gif"
+img = "/buttons/me.gif"      # per site: static-sites/<hostname>/buttons/me.gif
 href = "/"
-alt = "Justin Garrigus"
+alt = "{{ name }}"
 
 # The wall in the footer: friends, labs, webrings, and general vibes.
 [[friends]]

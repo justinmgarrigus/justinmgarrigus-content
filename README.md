@@ -1,7 +1,8 @@
 # justinmgarrigus.github.io — content
 
-Markdown source for https://justinmgarrigus.github.io. `build.py` compiles it
-into the separate `justinmgarrigus.github.io` repo, which GitHub Pages serves.
+Markdown source for https://justinmgarrigus.github.io and
+https://sophiegarrigus.github.io. `build.py` compiles it once per site into
+the repo of the same name next to this one, which GitHub Pages serves.
 
 ## Setup
 
@@ -12,13 +13,29 @@ first run, pinned by `build.py.lock`. To upgrade them: `uv lock --script build.p
 ## Everyday use
 
     uv run build.py --drafts --serve             # preview at http://localhost:8000
-    ./publish.sh                                 # build into ../justinmgarrigus.github.io,
-                                                 # review, commit, push
+    uv run build.py --site sophiegarrigus.github.io --serve   # preview the other site
+    ./publish.sh                                 # build every site into its ../<hostname>
+                                                 # repo, review, commit, push
 
 Publishing **replaces** the contents of the site repo (except `.git`,
 `CNAME`, `.nojekyll`, `README.md`, and anything in `keep` in `site.toml`),
 so everything the live site needs must live here. The build warns about
 internal links that point at nothing.
+
+## One site per name
+
+Each `[sites."<hostname>"]` table at the bottom of `site.toml` is a site.
+Its keys become variables (`{{ name }}`, `{{ first_name }}`, `{{ email }}`,
+plus `{{ domain }}` for the hostname) usable anywhere: `site.toml`, pages,
+front matter, `data/*.toml`. Write the name only as a variable.
+
+The name is baked in at build time rather than swapped by JavaScript, so a
+site's HTML never contains the other name, even with scripts off. A build
+for the `../<hostname>` folder picks that site automatically. Files that
+must differ per site (the 88x31 with the name on it) live in
+`static-sites/<hostname>/` and are layered over `static/`. After each build,
+any mention of another site's name in the output is printed as a warning.
+PDFs aren't checked.
 
 ## Layout
 
@@ -29,6 +46,7 @@ internal links that point at nothing.
 | `data/*.toml` | News, publications, 88x31 buttons |
 | `static/` | Copied as-is to the site root (`static/cv/resume.pdf` → `/cv/resume.pdf`) |
 | `static/gifs/`, `static/buttons/` | GIF icons and 88x31s |
+| `static-sites/<hostname>/` | Per-site files layered over `static/` |
 | `theme/` | `layout.html` skeleton, `style.css`, `sparkle.js` |
 | `tools/make-gifs.sh` | Regenerates the placeholder GIFs/buttons |
 

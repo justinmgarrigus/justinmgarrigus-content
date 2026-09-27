@@ -1,13 +1,17 @@
 # Site-wide settings. Every page shares the banner, nav, sidebar and footer
 # defined here. Markdown (and {{ shortcodes }}) work in title, tagline,
 # sidebar and footer.
+#
+# {{ name }}, {{ first_name }}, {{ email }} and {{ domain }} work anywhere
+# (here, pages, front matter, data/*.toml) and differ per site: see [sites]
+# at the bottom. Never write either name out literally.
 
-title = "Justin Garrigus"
-author = "Justin Garrigus"      # bolded in {{ publications }} author lists
+title = "{{ name }}"
+author = "{{ name }}"      # bolded in {{ publications }} author lists
 tagline = """
 PhD Student in Electrical Engineering, UT Austin
 """
-description = "Justin Garrigus: computer architecture research, GPUs, CPUs and FPGAs."
+description = "{{ name }}: computer architecture research, GPUs, CPUs and FPGAs."
 
 # Effect classes for the big title in the banner and for each page's <h1>.
 # Any of: blink blink-colors rainbow glow shake wobble sparkle comic wordart
@@ -89,3 +93,21 @@ accent-ink = "#f7d1cd"
 # bg-image = "url(/gifs/your-tile.gif)"
 # cursor = "url(/media/cursor.png), auto"
 # bullet = "url(/media/bullets/1.png)"    # your old site's bullet images
+
+# One site per hostname, each built into the repo folder of the same name
+# (../justinmgarrigus.github.io, ../sophiegarrigus.github.io). Every key here
+# becomes a {{ variable }}; {{ domain }} is the hostname itself. The first
+# entry is what `uv run build.py` previews by default. Per-site files (like
+# the 88x31 button with the name on it) go in static-sites/<hostname>/.
+# After a build, anything mentioning another site's name is listed as a
+# warning.
+
+[sites."justinmgarrigus.github.io"]
+name = "Justin Garrigus"
+first_name = "Justin"
+email = "justingarrigus@utexas.edu"
+
+[sites."sophiegarrigus.github.io"]
+name = "Sophie Garrigus"
+first_name = "Sophie"
+email = "justingarrigus@utexas.edu"   # same inbox for now

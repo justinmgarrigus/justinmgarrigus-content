@@ -1,7 +1,7 @@
 +++
 title = "Home"
 hide_title = true
-description = "Justin Garrigus: PhD student in computer architecture at UT Austin."
+description = "{{ name }}: PhD student in computer architecture at UT Austin."
 +++
 
 ::: marquee
@@ -22,7 +22,7 @@ at AMD developing scale-up/scale-out GPU systems.
 
 ## Introduction
 
-Hello! My name is Justin. I'm a PhD student at the University of Texas at
+Hello! My name is {{ first_name }}. I'm a PhD student at the University of Texas at
 Austin currently studying computer architecture. My advisor is
 [Dr. Lizy Kurian John](https://scholar.google.com/citations?user=YPu9rWUAAAAJ&hl=en&oi=ao),
 and my work is with the
@@ -52,4 +52,4 @@ programming problem, advised by
 [Dr. Barrett Bryant](https://scholar.google.com/citations?user=hMCK39sAAAAJ&hl=en).
 
 My full CV can be found [here](/cv/resume.pdf). You can contact me at
-justingarrigus@utexas.edu.
+{{ email }}.

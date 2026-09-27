@@ -1,7 +1,7 @@
 +++
 title = "Research"
 title_class = "wordart"
-description = "Papers, posters and theses by Justin Garrigus."
+description = "Papers, posters and theses by {{ name }}."
 +++
 
 This section describes research projects I've worked on which were made with

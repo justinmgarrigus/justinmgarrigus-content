@@ -2,6 +2,7 @@
 #
 #   title    Markdown
 #   authors  list; the entry equal to `author` in site.toml is bolded.
+#            Write yourself as "{{ name }}" so each site shows its own name.
 #            If omitted, `role` is shown instead.
 #   role     e.g. "main author", "coauthor"
 #   venue    Markdown, italicised

@@ -54,15 +54,22 @@ button() {  # out bg fg line1 line2 [accent]
     "$out"
 }
 
-# Your own button, for other people to link back to you. Two frames so the
-# second line blinks.
-button $TMP/jmg1.gif '#735d78' '#f7d1cd' 'JUSTIN' 'GARRIGUS' '#ffe600'
-button $TMP/jmg2.gif '#735d78' '#f7d1cd' 'JUSTIN' 'GARRIGUS' '#ff66ff'
-magick -delay 60 $TMP/jmg1.gif $TMP/jmg2.gif -loop 0 "$B/justinmgarrigus.gif"
+# Your own button, for other people to link back to you, one per site with
+# that site's name (served as /buttons/me.gif). Two frames so the second
+# line blinks.
+me_button() {  # hostname FIRST LAST
+  local out="static-sites/$1/buttons/me.gif"
+  mkdir -p "$(dirname "$out")"
+  button "$TMP/me1.gif" '#735d78' '#f7d1cd' "$2" "$3" '#ffe600'
+  button "$TMP/me2.gif" '#735d78' '#f7d1cd' "$2" "$3" '#ff66ff'
+  magick -delay 60 "$TMP/me1.gif" "$TMP/me2.gif" -loop 0 "$out"
+}
+me_button justinmgarrigus.github.io JUSTIN GARRIGUS
+me_button sophiegarrigus.github.io  SOPHIE GARRIGUS
 
 button "$B/anybrowser.gif"   '#000000' '#ffffff' 'BEST VIEWED' 'ANY BROWSER' '#39ff14'
 button "$B/markdown.gif"     '#ffffff' '#000000' 'WRITTEN IN'  'MARKDOWN'    '#0000ee'
 button "$B/no-tracking.gif"   '#004400' '#ccffcc' 'NO COOKIES' 'NO TRACKING' '#ffe600'
 button "$B/utexas.gif"       '#bf5700' '#ffffff' 'PHD @'       'UT AUSTIN'   '#ffffff'
 
-echo "wrote: $(ls "$G"/*.gif "$B"/*.gif | tr '\n' ' ')"
+echo "wrote: $(ls "$G"/*.gif "$B"/*.gif static-sites/*/buttons/*.gif | tr '\n' ' ')"

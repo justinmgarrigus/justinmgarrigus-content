@@ -8,9 +8,13 @@
 """
 Compiles the content repository into a static site.
 
-    uv run build.py                      # build into _site/
-    uv run build.py --serve              # build, then preview at localhost:8000
-    uv run build.py --out ../justinmgarrigus.github.io   # publish
+    uv run build.py                      # build into _site/ (first [sites] entry)
+    uv run build.py --site sophiegarrigus.github.io --serve   # preview another
+    uv run build.py --out ../justinmgarrigus.github.io        # publish
+
+One content repo serves several hostnames, each with its own name: see
+[sites] in site.toml. A publish picks the site from the output folder's name
+(which is the hostname), so each published repo has only its own name in it.
 
 Dependencies are declared in the "# /// script" block above; uv installs
 them into its own cache on first run, pinned by build.py.lock.
@@ -56,6 +60,7 @@ ROOT = Path(__file__).resolve().parent
 PAGES = ROOT / "pages"
 DATA = ROOT / "data"
 STATIC = ROOT / "static"
+SITE_STATIC = ROOT / "static-sites"     # static-sites/<hostname>/..., per site
 THEME = ROOT / "theme"
 
 # Files in the publish target that a publish never deletes.
@@ -121,7 +126,7 @@ def url_for(out: Path) -> str:
 # --------------------------------------------------------------------------
 
 # What counts as "the site changed" for the site-wide Updated date.
-CONTENT = ["pages", "data", "static", "site.toml"]
+CONTENT = ["pages", "data", "static", "static-sites", "site.toml"]
 
 
 def parse_date(value, where: str) -> tuple[date, str]:
@@ -545,6 +550,57 @@ def hr(env, img="divider.gif"):
 
 
 # --------------------------------------------------------------------------
+# Per-site variables ({{ name }}, {{ first_name }}, ...)
+# --------------------------------------------------------------------------
+
+def site_vars(site: dict, host: str) -> dict:
+    """The [sites."<host>"] table from site.toml, plus {{ domain }}."""
+    sites = site.get("sites", {})
+    if host not in sites:
+        raise BuildError(f'no [sites."{host}"] in site.toml (have: {", ".join(sites)})')
+    vars = {**sites[host], "domain": host}
+    clash = set(vars) & set(SHORTCODES)
+    if clash:
+        raise BuildError(f"[sites] variable(s) {sorted(clash)} clash with shortcodes")
+    return {k: str(v) for k, v in vars.items()}
+
+
+def personalize(value, vars: dict):
+    """
+    Replaces {{ key }} for each site variable in every string of a loaded
+    TOML value or page. Other {{ ... }} (shortcodes) are left alone.
+    """
+    if isinstance(value, str):
+        return re.sub(r"\{\{\s*(\w+)\s*\}\}",
+                      lambda m: vars.get(m[1], m[0]), value)
+    if isinstance(value, dict):
+        return {k: personalize(v, vars) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(personalize(v, vars) for v in value)
+    return value
+
+
+def other_names(site: dict, host: str) -> list[str]:
+    """Names belonging to the *other* sites, which must not leak into this one."""
+    return sorted({str(v) for h, t in site.get("sites", {}).items() if h != host
+                   for k, v in t.items() if k in ("name", "first_name")})
+
+
+def check_leaks(out_dir: Path, names: list[str]) -> list[str]:
+    """Output text files mentioning another site's name (case-insensitive)."""
+    hits = []
+    for f in sorted(out_dir.rglob("*")):
+        if ".git" in f.parts or f.suffix not in (".html", ".css", ".js", ".svg", ".txt", ".md", ".xml", ".json"):
+            continue
+        text = f.read_text(encoding="utf-8", errors="replace")
+        for n in names:
+            for m in re.finditer(re.escape(n), text, re.IGNORECASE):
+                context = text[max(0, m.start() - 30) : m.end() + 30].replace("\n", " ")
+                hits.append(f"/{f.relative_to(out_dir).as_posix()}: ...{context}...")
+    return hits
+
+
+# --------------------------------------------------------------------------
 # Page assembly
 # --------------------------------------------------------------------------
 
@@ -604,7 +660,7 @@ def site_updated(site: dict) -> date:
 
 
 def build_page(path: Path, site: dict, data: dict, layout: str) -> tuple[Path, str]:
-    meta, body = split_front_matter(path)
+    meta, body = personalize(split_front_matter(path), site["_vars"])
     out = output_path(path)
     url = url_for(out)
     env = {
@@ -642,13 +698,16 @@ def build_page(path: Path, site: dict, data: dict, layout: str) -> tuple[Path, s
         "site_updated": display_date(site["_updated"]),
         "site_updated_iso": site["_updated"].isoformat(),
     }
-    return out, fill(layout, ctx)
+    return out, fill(layout, {**site["_vars"], **ctx})
 
 
-def build(out_dir: Path, drafts: bool) -> list[Path]:
-    site = load_toml(ROOT / "site.toml")
+def build(out_dir: Path, drafts: bool, host: str) -> list[Path]:
+    raw = load_toml(ROOT / "site.toml")
+    vars = site_vars(raw, host)
+    site = personalize(raw, vars)
+    site["_vars"] = vars
     site["_updated"] = site_updated(site)
-    data = load_data()
+    data = personalize(load_data(), vars)
     layout = (THEME / "layout.html").read_text(encoding="utf-8")
 
     if out_dir.exists():
@@ -660,6 +719,9 @@ def build(out_dir: Path, drafts: bool) -> list[Path]:
 
     if STATIC.exists():
         shutil.copytree(STATIC, out_dir, dirs_exist_ok=True)
+    # Per-site files (e.g. an 88x31 with that site's name) layered on top.
+    if (SITE_STATIC / host).exists():
+        shutil.copytree(SITE_STATIC / host, out_dir, dirs_exist_ok=True)
     shutil.copytree(THEME, out_dir / "theme", dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns("layout.html"))
     (out_dir / "theme" / "grid.svg").write_text(
@@ -720,6 +782,9 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=ROOT / "_site",
                     help="output directory (default: _site/)")
+    ap.add_argument("--site", metavar="HOSTNAME",
+                    help="which [sites] entry to build (default: the --out folder's "
+                         "name, or for _site/ the first entry)")
     ap.add_argument("--drafts", action="store_true",
                     help="also build pages with draft = true")
     ap.add_argument("--serve", action="store_true",
@@ -731,13 +796,22 @@ def main():
     out_dir = args.out.resolve()
 
     try:
-        if out_dir != ROOT / "_site":
+        sites = list(load_toml(ROOT / "site.toml").get("sites", {}))
+        if not sites:
+            raise BuildError('site.toml needs at least one [sites."<hostname>"] table')
+        publishing = out_dir != ROOT / "_site"
+        host = args.site or (out_dir.name if publishing else sites[0])
+        if publishing and host not in sites:
+            raise BuildError(f"can't tell which site {out_dir.name} is; name the "
+                             f"folder after a hostname in [sites] or pass --site")
+        if publishing:
             check_publish_target(out_dir, args.force)
-        written = build(out_dir, args.drafts)
+        written = build(out_dir, args.drafts, host)
+        leaks = check_leaks(out_dir, other_names(load_toml(ROOT / "site.toml"), host))
     except BuildError as e:
         sys.exit(f"build failed: {e}")
 
-    print(f"Built {len(written)} pages into {out_dir}")
+    print(f"Built {len(written)} pages for {host} into {out_dir}")
     for rel in written:
         print(f"  /{rel.as_posix()}")
     broken = check_links(out_dir, written)
@@ -745,6 +819,10 @@ def main():
         print(f"\nWarning: {len(broken)} broken internal link(s):")
         for b in broken:
             print(f"  {b}")
+    if leaks:
+        print(f"\nWarning: another site's name appears in {len(leaks)} place(s):")
+        for hit in leaks:
+            print(f"  {hit}")
     if args.serve:
         serve(out_dir, args.port)
 
