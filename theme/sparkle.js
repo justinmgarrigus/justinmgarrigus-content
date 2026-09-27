@@ -232,8 +232,8 @@
       last = now;
       var s = document.createElement("span");
       s.className = "trail-star";
-      s.style.left = (e.clientX + 6) + "px";
-      s.style.top = (e.clientY + 6) + "px";
+      s.style.left = e.clientX + "px";
+      s.style.top = e.clientY + "px";
       document.body.appendChild(s);
       setTimeout(function () { s.remove(); }, 700);
     });

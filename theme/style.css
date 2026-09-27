@@ -19,6 +19,7 @@
   /* GIFs used from CSS go through variables so "Reduce motion" can swap
      them for a still frame (sparkle.js, CSS_GIF_VARS). */
   --gif-star: url(/gifs/star-blink.gif);
+  --gif-star-spin: url(/gifs/star-spin.gif); 
   --panel: #fffaf6;
   --ink: #2a2d26;
   --muted: #6b5e66;
@@ -383,7 +384,8 @@ html[data-blink^="4"] .blink-colors { color: var(--blink-4); }
 /* Cursor trail stars (sparkle.js). */
 .trail-star {
   position: fixed; pointer-events: none; z-index: 99; width: 12px; height: 12px;
-  background: var(--gif-star) center / contain no-repeat; image-rendering: pixelated;
+  margin: -10px 0 0 -12px; /* center on the pointer */
+  background: var(--gif-star-spin) center / contain no-repeat; image-rendering: pixelated;
   animation: trail-fade .7s linear forwards;
 }
 @keyframes trail-fade { to { opacity: 0; transform: translateY(14px) scale(.4); } }
