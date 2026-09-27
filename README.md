@@ -44,7 +44,7 @@ PDFs aren't checked.
 | `site.toml` | Title, tagline, nav, sidebar, footer, theme colors |
 | `pages/*.md` | One page each. `pages/foo.md` → `/foo/` |
 | `data/*.toml` | News, publications, 88x31 buttons |
-| `static/` | Copied as-is to the site root (`static/cv/resume.pdf` → `/cv/resume.pdf`) |
+| `static/` | Copied as-is to the site root (`static/cv.pdf` → `/cv.pdf`) |
 | `static/gifs/`, `static/buttons/` | GIF icons and 88x31s |
 | `static-sites/<hostname>/` | Per-site files layered over `static/` |
 | `theme/` | `layout.html` skeleton, `style.css`, `sparkle.js` |
@@ -72,7 +72,7 @@ The full cheat sheet, rendered, is `pages/sparkle.md` (a draft; view it at
     {{ buttons group=friends }}        a wall of 88x31s from data/buttons.toml
 
     ::: box Window Title               Win95 window
-    ::: marquee                        scrolling text
+    ::: marquee [80]                   scrolling text at 80 pixels/second
     ::: construction                   UNDER CONSTRUCTION banner
     ::: center / ::: columns
 

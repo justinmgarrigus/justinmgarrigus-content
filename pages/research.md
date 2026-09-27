@@ -1,7 +1,7 @@
 +++
 title = "Research"
 title_class = "wordart"
-description = "Papers, posters and theses by {{ name }}."
+description = "Papers, posters, theses and service by {{ name }}."
 +++
 
 This section describes research projects I've worked on which were made with
@@ -19,3 +19,9 @@ format.
 ## Posters {{ new from=publications kind=poster }}
 
 {{ publications kind=poster }}
+
+## Service
+
+- MICRO 2026 - Artifact Evaluator
+- FPGA 2026 - Paper Reviewer
+- HPCA 2026 - Paper Reviewer

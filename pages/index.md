@@ -5,7 +5,7 @@ description = "{{ name }}: PhD student in computer architecture at UT Austin."
 +++
 
 ::: marquee
-Welcome to my corner of the web!&nbsp;&nbsp;&nbsp;★&nbsp;&nbsp;&nbsp;Now working on GPUs at AMD&nbsp;&nbsp;&nbsp;★&nbsp;&nbsp;&nbsp;Sign my guestbook... once I build one
+Welcome to my home-page. This is the wonderful site of {{ first_name }}. Did you know that the first computer to reach 1 billion floating-point operations a second (at the time in 1985 the fastest computer in the world, the Cray-2) was cooled with artificial human blood? It also contained a decorative fountain in the coolant circulation system. [It's true!](https://www.cs.man.ac.uk/~toby/writing/PCW/cray.html) Seymour Cray also liked to dig a [tunnel](https://time.com/archive/6711931/technology-just-dig-while-you-work/) in his backyard. And he receives help on hard problems from [elves](https://cray-history.net/2023/12/16/jim-masoco-recalls-life-working-at-cray-research-and-seymour-stories/) (though he may have been joking, possibly).
 :::
 
 ## Overview {.blink-colors}
@@ -18,7 +18,7 @@ at AMD developing scale-up/scale-out GPU systems.
 
 ## News {{ new from=news }}
 
-{{ news limit=5 }}
+{{ news }}
 
 ## Introduction
 
@@ -51,5 +51,5 @@ introduction of a custom programming language maximizing expressibility of any
 programming problem, advised by
 [Dr. Barrett Bryant](https://scholar.google.com/citations?user=hMCK39sAAAAJ&hl=en).
 
-My full CV can be found [here](/cv/resume.pdf). You can contact me at
+My full CV can be found [here](/cv.pdf). You can contact me at
 {{ email }}.

@@ -3,6 +3,8 @@
 //  - "Reduce movement" button: toggles html.calm (CSS animations off) and
 //    freezes animated GIFs on their first frame. Remembered per browser.
 //  - Fills in the pretend visitor counter.
+//  - Animates a GIF favicon in browsers that don't (all but Firefox).
+//  - Times marquees so they scroll at a constant speed.
 //  - Shows NEW! badges on recently dated items (news rows, {{ new }}).
 //  - Drives .blink and .blink-colors from a timer, and sets up .glow, so
 //    those effects avoid per-frame work (see style.css "effects").
@@ -87,6 +89,25 @@
     });
   })();
 
+  // Marquees scroll at a constant speed (data-speed, px/s): the duration is
+  // the distance travelled, which is the inner strip's full width (its
+  // run-in padding is the box width, plus the text), over the speed.
+  // Recomputed when the box resizes; the build wrote an estimate.
+  var marquees = document.querySelectorAll(".marquee[data-speed]");
+  function timeMarquee(m) {
+    var inner = m.querySelector(".marquee-inner");
+    if (inner && inner.offsetWidth) {
+      m.style.setProperty("--marquee-duration", inner.offsetWidth / Number(m.dataset.speed) + "s");
+    }
+  }
+  marquees.forEach(timeMarquee);
+  if (window.ResizeObserver && marquees.length) {
+    var ro = new ResizeObserver(function (entries) {
+      entries.forEach(function (e) { timeMarquee(e.target); });
+    });
+    marquees.forEach(function (m) { ro.observe(m); });
+  }
+
   // Pretend visitor counter ({{ counter }}): per_day visitors a day since
   // midnight UTC on the start date, extrapolated to the visitor's clock.
   document.querySelectorAll(".visitor-counter[data-start]").forEach(function (el) {
@@ -123,15 +144,74 @@
     el.dataset.text = el.textContent;
   });
 
+  // Animated favicon. Only Firefox animates a GIF favicon by itself; Chrome,
+  // Edge and Safari show its first frame. Where the browser can decode GIF
+  // frames (ImageDecoder: Chromium), cycle the icon through them, honoring
+  // each frame's delay. Elsewhere leave the GIF as-is. Calm mode shows a
+  // still frame either way.
+  var icon = document.querySelector('link[rel~="icon"][href$=".gif"]');
+  var iconSrc = icon && icon.href, iconFrames = null, iconTimer = null, iconRun = 0;
+
+  function loadIconFrames() {
+    if (iconFrames) return iconFrames;
+    iconFrames = !window.ImageDecoder ? Promise.resolve([]) :
+      fetch(iconSrc).then(function (r) { return r.arrayBuffer(); }).then(async function (buf) {
+        var dec = new ImageDecoder({ data: buf, type: "image/gif" });
+        await dec.tracks.ready;       // the frame list...
+        await dec.completed;          // ...and all of the data
+        var frames = [];
+        for (var i = 0; i < dec.tracks.selectedTrack.frameCount; i++) {
+          var f = (await dec.decode({ frameIndex: i })).image;   // fully composited
+          var c = document.createElement("canvas");
+          c.width = f.displayWidth; c.height = f.displayHeight;
+          c.getContext("2d").drawImage(f, 0, 0);
+          // Durations are in microseconds; like browsers, treat ~0 as 100ms.
+          var ms = (f.duration || 0) / 1000;
+          frames.push({ url: c.toDataURL(), ms: ms < 20 ? 100 : ms });
+          f.close();
+        }
+        dec.close();
+        return frames;
+      }).catch(function () { return []; });
+    return iconFrames;
+  }
+
+  function animateIcon(on) {
+    if (!icon) return;
+    var run = ++iconRun;              // a later call supersedes this one
+    clearTimeout(iconTimer);
+    loadIconFrames().then(function (frames) {
+      if (run !== iconRun) return;
+      if (!frames.length) {           // no decoder: the GIF itself, or a still
+        if (on) { icon.href = iconSrc; return; }
+        var img = new Image();
+        img.src = iconSrc;
+        whenLoaded(img, function () {
+          var url = run === iconRun && stillOf(img);
+          if (url) icon.href = url;
+        });
+        return;
+      }
+      if (!on || frames.length === 1) { icon.href = frames[0].url; return; }
+      var i = 0;
+      (function step() {
+        icon.href = frames[i].url;
+        iconTimer = setTimeout(step, frames[i].ms);
+        i = (i + 1) % frames.length;
+      })();
+    });
+  }
+
   var button = document.getElementById("calm-toggle");
   function sync() {
     var calm = root.classList.contains("calm");
     if (button) {
       button.setAttribute("aria-pressed", calm ? "true" : "false");
-      button.textContent = calm ? "Bring back the movement" : "Stop the movement";
+      button.textContent = calm ? "Produce motion" : "Reduce motion";
     }
     freezeGifs(isCalm());
     runBlink(!isCalm());
+    animateIcon(!isCalm());
   }
   if (button) {
     button.addEventListener("click", function () {

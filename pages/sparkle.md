@@ -73,13 +73,17 @@ Contents of a **window**. Leave off the title for a plain bevelled box.
 :::
 
 ```
-::: marquee 10s
-Scrolling text; the number is the loop time.
+::: marquee 120
+Scrolling text; the number is the speed in pixels per second (default 80).
 :::
 ```
 
-::: marquee 10s
-Scrolling text; the number is the loop time. ★ ★ ★
+::: marquee 120
+Scrolling text; the number is the speed in pixels per second (default 80). ★ ★ ★
+:::
+
+::: marquee 120
+Same speed, much less text.
 :::
 
 ::: construction

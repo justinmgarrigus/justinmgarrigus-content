@@ -19,27 +19,47 @@
 # Ported from the old research/index.html; authors and statuses need a pass.
 
 [[pub]]
-title = "Hardware and Software Optimizations for Deep Learning Workloads on Graphics Processing Units"
-role = "Master's thesis, advised by Dr. Hui Zhao"
-venue = "University of North Texas"
+title = "Exploration of LLM Workload Reliability based on di/dt Effects and Voltage Droops"
+authors = ["Zhixing Jiang", "{{name}}", "Allison Seigler", "Ethan Syed", "Yan-Lun Huang", "Mehdi Sadi", "Tawfik Rahal-Arabi", "Lizy Kurian John"]
+venue = "HPCA"
+year = 2026
+kind = "paper" 
+[pub.links]
+link = "https://2026.hpca-conf.org/details/hpca-2026-main-conference/39/Exploration-of-LLM-Workload-Reliability-based-on-di-dt-effects-and-Voltage-Droops"
+pdf = "https://lca.ece.utexas.edu/pubs/jiang_hpca26.pdf"
+
+[[pub]] 
+title = "LiteNoC: Developing Low-Cost Network-on-Chips for Deep Neural Networks"
+authors = ["Khoa Ho", "Siamak Biglari", "{{name}}", "Hui Zhao", "Saraju Mohanty"] 
+venue = "GLSVLSI"
 year = 2025
+kind = "paper" 
+[pub.links] 
+link = "https://dl.acm.org/doi/full/10.1145/3716368.3735289" 
+
+[[pub]]
+title = "Hardware and Software Optimizations for Deep Learning Workloads on Graphics Processing Units"
+authors = ["{{name}}"] 
+venue = "University of North Texas"
+year = 2024
 kind = "thesis"
 [pub.links]
 pdf = "/research/media/master-thesis.pdf"
 slides = "/research/media/master-defense.pdf"
 
 [[pub]]
-title = "Using Transfer Learning and Supercells to Improve Graph Neural Network Performance in Formation Energy Predictions"
-role = "main author"
-year = 2024
-kind = "paper"
-note = "In progress"
+title = "Syntax as a Tool of Thought"
+authors = ["{{name}}"] 
+venue = "University of North Texas"
+year = 2022
+kind = "thesis"
 [pub.links]
-code = "https://github.com/justinmgarrigus/cgcnn"
+pdf = "/projects/media/senior-thesis.pdf"
 
 [[pub]]
 title = "Applying Transfer Learning to Defect Graph Neural Networks for Defect Formation Energy Predictions"
-role = "graduate assistant"
+authors = ["Thomas Bouchard", "Angela Zhang", "{{name}}", "Fatima Habis", "Yuanxi Wang"] 
+venue = "UNT Research Day" 
 year = 2024
 kind = "poster"
 [pub.links]
@@ -48,29 +68,19 @@ report = "/research/media/transfer-defect-report.pdf"
 code = "https://github.com/justinmgarrigus/cgcnndefect"
 
 [[pub]]
-title = "Deputy NoC: A Case of Low Cost Network-on-Chip for Neural Network Accelerations on GPUs"
-role = "coauthor"
-year = 2024
-kind = "paper"
-
-[[pub]]
-title = "Elastic-Float: Lossy Cache Compression for Cost Effective Neural Network Acceleration"
-role = "coauthor"
-year = 2023
-kind = "paper"
-
-[[pub]]
 title = "Genomics-GPU: A Benchmark Suite for GPU-accelerated Genome Analysis"
-role = "coauthor"
+authors = ["Zhuren Liu", "Shouzhe Zhang", "{{name}}", "Hui Zhao"] 
 venue = "ISPASS"
 year = 2023
 kind = "paper"
 [pub.links]
+link = "https://ieeexplore.ieee.org/document/10158156"
+pdf = "https://par.nsf.gov/servlets/purl/10415345"
 code = "https://github.com/nahmedraja/GASAL2"
 
 [[pub]]
 title = "GPU Implementation of Image Recognition Neural Network Architectures"
-role = "main author"
+authors = ["{{name}}", "Bora Bulut", "Hui Zhao"] 
 venue = "UNT 2022 REU"
 year = 2022
 kind = "poster"

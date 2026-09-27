@@ -289,7 +289,8 @@ def shortcode_block(state, start, end, silent):
 
 
 def render_shortcode(self, tokens, idx, options, env):
-    out = run_shortcode(tokens[idx].content, env)
+    # "inline" tells shortcodes whether they sit inside a line of text.
+    out = run_shortcode(tokens[idx].content, {**env, "inline": not tokens[idx].block})
     return out + "\n" if tokens[idx].block else out
 
 
@@ -312,13 +313,35 @@ def render_box(self, tokens, idx, options, env):
     return f'<div class="box">{bar}<div class="box-body">\n'
 
 
+MARQUEE_SPEED = 80   # pixels per second
+
+
 def render_marquee(self, tokens, idx, options, env):
-    """::: marquee  ->  scrolling text (static under reduced motion)."""
+    """
+    ::: marquee [SPEED]  ->  scrolling text at SPEED pixels/second (default
+    80), however much text there is. sparkle.js sets the exact duration from
+    the measured width; the duration written here is a no-JS estimate.
+    """
     if tokens[idx].nesting == -1:
         return "</div></div>\n"
-    speed = container_args(tokens, idx, "marquee") or "18s"
-    return (f'<div class="marquee" style="--marquee-speed:{html.escape(speed)}">'
-            f'<div class="marquee-inner">\n')
+    arg = container_args(tokens, idx, "marquee")
+    try:
+        speed = float(arg) if arg else MARQUEE_SPEED
+        assert speed > 0
+    except (ValueError, AssertionError):
+        raise BuildError(f"{env['page_src']}: '::: marquee {arg}': give a speed in "
+                         f"pixels per second, e.g. '::: marquee 80'") from None
+    # Estimate: a ~700px box plus the text, at ~0.6em (9.6px) per monospace
+    # character.
+    chars = 0
+    for tok in tokens[idx + 1:]:
+        if tok.type == "container_marquee_close":
+            break
+        if tok.type == "inline":   # count what shows: one per &entity;, no tags
+            chars += len(re.sub(r"<[^>]*>", "", re.sub(r"&#?\w+;", "x", tok.content)))
+    duration = (700 + chars * 9.6) / speed
+    return (f'<div class="marquee" data-speed="{speed:g}" '
+            f'style="--marquee-duration:{duration:.1f}s"><div class="marquee-inner">\n')
 
 
 def render_construction(self, tokens, idx, options, env):
@@ -404,10 +427,15 @@ def img_tag(src, alt="", cls="", width=None, height=None, title=None) -> str:
 
 @shortcode
 def gif(env, src, alt="", width=None, cls=""):
-    """{{ gif star-blink.gif }} -- looks in /gifs/ unless given a path."""
+    """
+    {{ gif star-blink.gif }} -- looks in /gifs/ unless given a path. Inside
+    a line of text it sits on the text line like a character (gif-inline);
+    alone on its line it's a plain image.
+    """
     if "/" not in src:
         src = "/gifs/" + src
-    return img_tag(src, alt, ("gif " + cls).strip(), width)
+    classes = ["gif", "gif-inline" if env.get("inline") else "", cls]
+    return img_tag(src, alt, " ".join(c for c in classes if c), width)
 
 
 def button_html(b: dict) -> str:
@@ -766,8 +794,24 @@ def check_publish_target(target: Path, force: bool):
             f"list; pass --force if you really mean it.")
 
 
+class PreviewHandler(http.server.SimpleHTTPRequestHandler):
+    """Like GitHub Pages: a missing path gets /404.html, with status 404."""
+
+    def send_error(self, code, message=None, explain=None):
+        page = Path(self.directory) / "404.html"
+        if code != 404 or not page.is_file():
+            return super().send_error(code, message, explain)
+        body = page.read_bytes()
+        self.send_response(404)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(body)
+
+
 def serve(out_dir: Path, port: int):
-    handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(out_dir))
+    handler = partial(PreviewHandler, directory=str(out_dir))
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", port), handler) as httpd:
         print(f"Serving {out_dir} at http://localhost:{port}/  (Ctrl-C to stop)")

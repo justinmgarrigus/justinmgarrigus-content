@@ -16,7 +16,7 @@
   --bg: #f7d1cd;
   --bg-2: #e8c2ca;
   --bg-image: none;            /* e.g. url(/img/tile.gif) */
-  /* GIFs used from CSS go through variables so "Stop the movement" can swap
+  /* GIFs used from CSS go through variables so "Reduce motion" can swap
      them for a still frame (sparkle.js, CSS_GIF_VARS). */
   --gif-star: url(/gifs/star-blink.gif);
   --panel: #fffaf6;
@@ -36,6 +36,9 @@
   --blink-3: #ff5a00;
   --blink-4: #009a00;
   --marquee-ink: #39ff14;
+  --marquee-link: #00ffff;      /* links on the marquee's black: */
+  --marquee-visited: #ff77ff;   /* all 7:1+ contrast */
+  --marquee-hover: #ffff00;
   --bullet: none;               /* list bullet image, e.g. url(/media/bullets/1.png) */
   --font-body: "Times New Roman", Times, "Liberation Serif", serif;
   --font-head: "Trebuchet MS", Verdana, "DejaVu Sans", sans-serif;
@@ -216,6 +219,16 @@ th { background: var(--face); font-family: var(--font-ui); font-size: .95rem; }
 /* ----------------------------------------------------------- components */
 
 .gif, .button88, .pixel { image-rendering: pixelated; vertical-align: middle; }
+/* A GIF inside a sentence is centered on its line: top-aligned to the line,
+   then moved down by half the line height (1lh) less half its own height
+   (translate % is of the image itself), so a 10px icon on a 16px line
+   starts 3px down. Icons taller than the line stay top-aligned and grow
+   the line instead of overlapping the line above. Browsers without the lh
+   unit keep the text-bottom fallback. */
+.gif-inline { vertical-align: text-bottom; }
+@supports (height: 1lh) {
+  .gif-inline { vertical-align: top; transform: translateY(max(0px, calc(0.5lh - 50%))); }
+}
 .button88 { width: 88px; height: 31px; }
 .button-wall { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: .5rem 0 1rem; }
 .button-wall a { line-height: 0; }
@@ -277,8 +290,11 @@ th { background: var(--face); font-family: var(--font-ui); font-size: .95rem; }
   font: bold 1rem var(--font-mono); padding: 3px 0; margin: 0 0 1rem;
 }
 .marquee-inner { display: inline-block; padding-left: 100%;
-                 animation: marquee var(--marquee-speed, 18s) linear infinite; }
+                 animation: marquee var(--marquee-duration, 18s) linear infinite; }
 .marquee-inner > * { display: inline; margin: 0 2rem 0 0; }
+.marquee a:link { color: var(--marquee-link); }
+.marquee a:visited { color: var(--marquee-visited); }
+.marquee a:hover, .marquee a:focus { color: var(--marquee-hover); }
 
 .footer { text-align: center; font-size: .95rem; padding-bottom: 1rem; }
 .footer p { margin: .4rem 0; }
