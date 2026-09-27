@@ -1,0 +1,23 @@
+# Newest first. `text` is Markdown. `new = true` adds a flashing NEW! badge.
+# Ported from the old main.html.
+
+[[item]]
+date = "January 2026"
+text = "Started working as a Research Associate Intern at AMD"
+new = true
+
+[[item]]
+date = "December 2025"
+text = "Graduated from UNT with my Master's degree"
+
+[[item]]
+date = "November 2025"
+text = "Successfully defended my [Master's thesis](/research/media/master-thesis.pdf)"
+
+[[item]]
+date = "August 2025"
+text = "First day of PhD at UT Austin"
+
+[[item]]
+date = "January 2024"
+text = "First day of Master's at UNT"

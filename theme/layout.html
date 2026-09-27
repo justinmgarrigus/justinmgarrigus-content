@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/theme/style.css">
+  <style>{{ theme_css }} {{ page_css }}</style>
+  <!-- Applied before first paint so calm mode never flashes animations. -->
+  <script>try{if(localStorage.getItem("calm")==="1")document.documentElement.classList.add("calm")}catch(e){}</script>
+  <script src="/theme/sparkle.js" defer data-trail="{{ trail }}"></script>
+</head>
+<body class="{{ body_class }}">
+<a class="skip" href="#main">Skip to content</a>
+<div class="page">
+
+  <header class="banner">
+    <div class="site-title {{ site_title_class }}"><a href="/">{{ site_title }}</a></div>
+    <div class="tagline">{{ tagline }}</div>
+  </header>
+
+  <nav class="nav" aria-label="Site">{{ nav }}</nav>
+
+  <main id="main" class="window">
+    {{ heading }}
+    {{ content }}
+    <p class="page-updated">Last updated {{ updated }}</p>
+  </main>
+
+  <aside class="sidebar">{{ sidebar }}</aside>
+
+  <footer class="footer">
+    {{ footer }}
+    <button type="button" id="calm-toggle" class="bevel-button" aria-pressed="false">
+      Stop the sparkles
+    </button>
+  </footer>
+
+</div>
+</body>
+</html>

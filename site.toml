@@ -1,0 +1,90 @@
+# Site-wide settings. Every page shares the banner, nav, sidebar and footer
+# defined here. Markdown (and {{ shortcodes }}) work in title, tagline,
+# sidebar and footer.
+
+title = "Justin Garrigus"
+author = "Justin Garrigus"      # bolded in {{ publications }} author lists
+tagline = """
+PhD Student in Electrical Engineering, UT Austin
+"""
+description = "Justin Garrigus: computer architecture research, GPUs, CPUs and FPGAs."
+
+# Effect classes for the big title in the banner and for each page's <h1>.
+# Any of: blink blink-colors rainbow glow shake wobble sparkle comic wordart
+site_title_class = "sparkle"
+title_class = ""
+
+# Star trail behind the mouse pointer (skipped for touch, reduced motion,
+# and anyone who clicks "Stop the sparkles").
+cursor_trail = true
+
+# Files already in the publish repo that a publish must not delete, in
+# addition to .git, CNAME, .nojekyll and README.md.
+keep = []
+
+# Sidebar (left column, under the nav) and footer, in Markdown.
+sidebar = """
+![Picture of me](/media/profile-pic.jpg)
+
+**Welcome to my homepage!**
+
+You are visitor number
+[ **∞** ]{.blink-colors}
+
+### Link to me!
+
+{{ buttons group=me }}
+
+<small>Copy this onto your page:</small>
+<textarea readonly aria-label="HTML for linking to this site">&lt;a href="https://justinmgarrigus.github.io/"&gt;&lt;img src="https://justinmgarrigus.github.io/buttons/justinmgarrigus.gif" width="88" height="31" alt="Justin Garrigus"&gt;&lt;/a&gt;</textarea>
+"""
+
+footer = """
+{{ hr }}
+
+{{ buttons group=friends }}
+
+This site is hand-written in Markdown. No cookies, no tracking, no JavaScript required.
+"""
+
+# Everything below is a TOML table, so plain `key = value` settings must go
+# above this line.
+
+# Left-hand nav, top to bottom. `icon` is an optional 16x16 image.
+[[nav]]
+label = "Home"
+href = "/"
+icon = "/gifs/star-blink.gif"
+
+[[nav]]
+label = "Research"
+href = "/research/"
+
+[[nav]]
+label = "CV (PDF)"
+href = "/cv/resume.pdf"
+
+# Old pages not yet ported to pages/*.md. Uncomment as each one lands, or
+# the link checker will flag them.
+# [[nav]]
+# label = "Projects"
+# href = "/projects/"
+# [[nav]]
+# label = "Teaching"
+# href = "/teaching/"
+# [[nav]]
+# label = "Cranes"
+# href = "/cranes/"
+
+[theme]
+# Each key becomes a CSS variable (--bg, --panel, ...). See the top of
+# theme/style.css for the full list and defaults.
+bg = "#f7d1cd"
+bg-2 = "#e8c2ca"
+panel = "#fffaf6"
+accent = "#735d78"
+accent-2 = "#b392ac"
+accent-ink = "#f7d1cd"
+# bg-image = "url(/gifs/your-tile.gif)"
+# cursor = "url(/media/cursor.png), auto"
+# bullet = "url(/media/bullets/1.png)"    # your old site's bullet images

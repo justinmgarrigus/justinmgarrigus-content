@@ -1,0 +1,30 @@
+# 88x31 buttons, grouped. Render a group with {{ buttons group=NAME }}.
+# Each entry: img (required), href (optional link), alt/title (tooltip text).
+# Put the images in static/buttons/ and they'll be served from /buttons/.
+# Hotlinking other people's buttons works, but copying them locally is
+# kinder to their bandwidth and survives their site going down.
+
+# Your own button, shown in the sidebar for others to copy.
+[[me]]
+img = "/buttons/justinmgarrigus.gif"
+href = "/"
+alt = "Justin Garrigus"
+
+# The wall in the footer: friends, labs, webrings, and general vibes.
+[[friends]]
+img = "/buttons/utexas.gif"
+href = "https://lca.ece.utexas.edu/"
+alt = "Laboratory of Computer Architecture, UT Austin"
+
+[[friends]]
+img = "/buttons/markdown.gif"
+alt = "Written in Markdown"
+
+[[friends]]
+img = "/buttons/no-tracking.gif"
+alt = "No cookies, no tracking"
+
+[[friends]]
+img = "/buttons/anybrowser.gif"
+href = "https://anybrowser.org/campaign/"
+alt = "Best viewed with any browser"

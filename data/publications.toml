@@ -1,0 +1,74 @@
+# Newest first. Rendered with {{ publications }} or {{ publications kind=paper }}.
+#
+#   title    Markdown
+#   authors  list; the entry equal to `author` in site.toml is bolded.
+#            If omitted, `role` is shown instead.
+#   role     e.g. "main author", "coauthor"
+#   venue    Markdown, italicised
+#   year     shown after the venue
+#   kind     free-form tag for filtering: paper, poster, thesis, ...
+#   note     highlighted status line, e.g. "Best Paper!" or "In progress"
+#   [links]  label = url pairs, shown as [label] links
+#
+# Ported from the old research/index.html; authors and statuses need a pass.
+
+[[pub]]
+title = "Hardware and Software Optimizations for Deep Learning Workloads on Graphics Processing Units"
+role = "Master's thesis, advised by Dr. Hui Zhao"
+venue = "University of North Texas"
+year = 2025
+kind = "thesis"
+[pub.links]
+pdf = "/research/media/master-thesis.pdf"
+slides = "/research/media/master-defense.pdf"
+
+[[pub]]
+title = "Using Transfer Learning and Supercells to Improve Graph Neural Network Performance in Formation Energy Predictions"
+role = "main author"
+year = 2024
+kind = "paper"
+note = "In progress"
+[pub.links]
+code = "https://github.com/justinmgarrigus/cgcnn"
+
+[[pub]]
+title = "Applying Transfer Learning to Defect Graph Neural Networks for Defect Formation Energy Predictions"
+role = "graduate assistant"
+year = 2024
+kind = "poster"
+[pub.links]
+poster = "/research/media/transfer-defect-poster.pdf"
+report = "/research/media/transfer-defect-report.pdf"
+code = "https://github.com/justinmgarrigus/cgcnndefect"
+
+[[pub]]
+title = "Deputy NoC: A Case of Low Cost Network-on-Chip for Neural Network Accelerations on GPUs"
+role = "coauthor"
+year = 2024
+kind = "paper"
+
+[[pub]]
+title = "Elastic-Float: Lossy Cache Compression for Cost Effective Neural Network Acceleration"
+role = "coauthor"
+year = 2023
+kind = "paper"
+
+[[pub]]
+title = "Genomics-GPU: A Benchmark Suite for GPU-accelerated Genome Analysis"
+role = "coauthor"
+venue = "ISPASS"
+year = 2023
+kind = "paper"
+[pub.links]
+code = "https://github.com/nahmedraja/GASAL2"
+
+[[pub]]
+title = "GPU Implementation of Image Recognition Neural Network Architectures"
+role = "main author"
+venue = "UNT 2022 REU"
+year = 2022
+kind = "poster"
+[pub.links]
+poster = "/research/media/gpu-cpu-image-recognition-poster.pdf"
+report = "/research/media/gpu-cpu-image-recognition-report.pdf"
+code = "https://github.com/justinmgarrigus/VGG-Simulation"

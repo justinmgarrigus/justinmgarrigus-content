@@ -1,0 +1,402 @@
+/*
+ * Geocities-era theme, built to stay readable.
+ *
+ * Rules of thumb this file follows:
+ *  - Decoration lives in the frame (banner, nav, sidebar, headings). Body text
+ *    sits on a solid, high-contrast panel at a comfortable measure.
+ *  - Every animation is switched off by prefers-reduced-motion and by the
+ *    "Stop the sparkles" button (html.calm).
+ *  - One column under 760px; nothing forces horizontal scrolling.
+ *
+ * Colors and fonts are variables; override any of them from [theme] in
+ * site.toml (e.g. `panel = "#fffbe6"` sets --panel).
+ */
+
+:root {
+  --bg: #f7d1cd;
+  --bg-2: #e8c2ca;
+  --bg-image: none;            /* e.g. url(/img/tile.gif) */
+  --panel: #fffaf6;
+  --ink: #2a2d26;
+  --muted: #6b5e66;
+  --accent: #735d78;            /* banner / title bars */
+  --accent-2: #b392ac;          /* sidebar */
+  --accent-ink: #f7d1cd;        /* text on accent */
+  --link: #0000ee;
+  --visited: #551a8b;
+  --hover: #ff0000;
+  --face: #c0c0c0;              /* Win95 button face */
+  /* blink-colors cycles these on the (light) panel, so keep them dark enough
+     to read; the marquee has its own neon on black. */
+  --blink-1: #e000e0;
+  --blink-2: #0050ff;
+  --blink-3: #ff5a00;
+  --blink-4: #009a00;
+  --marquee-ink: #39ff14;
+  --bullet: none;               /* list bullet image, e.g. url(/media/bullets/1.png) */
+  --font-body: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-head: "Trebuchet MS", Verdana, "DejaVu Sans", sans-serif;
+  --font-ui: Tahoma, Verdana, "DejaVu Sans", sans-serif;
+  --font-mono: "Courier New", Courier, "Liberation Mono", monospace;
+  --measure: 44rem;
+  --cursor: auto;               /* e.g. url(/img/cursor.png), auto */
+}
+
+/* ---------------------------------------------------------------- frame */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { cursor: var(--cursor); }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 1.1875rem/1.55 var(--font-body);
+  /* Graph-paper grid: /theme/grid.svg, which build.py draws in the
+     --bg-2 color from site.toml. Set --bg-image to lay a tiled GIF on top.
+     Performance: keep this an image. The same grid as CSS gradients cost
+     ~5x the raster time on every repaint and scroll. */
+  background: var(--bg-image), url(/theme/grid.svg) var(--bg);
+}
+
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; z-index: 10; background: var(--panel); padding: .5rem; }
+
+.page {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  grid-template-areas:
+    "banner banner"
+    "nav    main"
+    "side   main"
+    "foot   foot";
+  grid-template-rows: auto auto 1fr auto;
+  gap: 12px;
+  max-width: calc(var(--measure) + 13rem + 5rem);
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.banner  { grid-area: banner; }
+.nav     { grid-area: nav; }
+.window  { grid-area: main; }
+.sidebar { grid-area: side; }
+.footer  { grid-area: foot; }
+
+/* Win95 bevels, reused by the panels and buttons. */
+.window, .banner, .nav, .sidebar, .box, .bevel-button, .nav a {
+  --bevel-hi: #ffffff; --bevel-lo: #808080; --bevel-dk: #0a0a0a; --bevel-lt: #dfdfdf;
+}
+.window, .box {
+  box-shadow: inset -1px -1px var(--bevel-dk), inset 1px 1px var(--bevel-lt),
+              inset -2px -2px var(--bevel-lo), inset 2px 2px var(--bevel-hi);
+}
+
+.banner {
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 18px 20px 14px;
+  border: 3px ridge var(--accent-2);
+}
+.site-title { font: italic 3.25rem/1.05 var(--font-body); }
+.site-title a:link, .site-title a:visited { color: inherit; text-decoration: none; }
+.tagline { font-size: 1.1rem; margin-top: .35rem; }
+
+/* ------------------------------------------------------------------ nav */
+
+.nav {
+  background: var(--accent-2);
+  border: 3px ridge var(--accent);
+  padding: 8px;
+}
+.nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.nav a, .bevel-button {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  background: var(--face);
+  color: #000;
+  font: bold .95rem var(--font-ui);
+  text-decoration: none;
+  border: 0;
+  box-shadow: inset -1px -1px var(--bevel-dk), inset 1px 1px var(--bevel-hi),
+              inset -2px -2px var(--bevel-lo), inset 2px 2px var(--bevel-lt);
+  cursor: pointer;
+}
+.nav a:link, .nav a:visited { color: #000; }
+.nav a:hover { color: #000080; }
+.nav a:active, .nav a[aria-current="page"], .bevel-button[aria-pressed="true"] {
+  box-shadow: inset 1px 1px var(--bevel-dk), inset -1px -1px var(--bevel-hi),
+              inset 2px 2px var(--bevel-lo), inset -2px -2px var(--bevel-lt);
+  padding: 6px 9px 4px 11px;
+}
+.nav a[aria-current="page"] { background: #d8d8d8; }
+.nav-icon { width: 16px; height: 16px; image-rendering: pixelated; }
+
+/* -------------------------------------------------------------- sidebar */
+
+.sidebar {
+  background: var(--accent-2);
+  border: 3px ridge var(--accent);
+  padding: 10px;
+  color: var(--ink);
+  font-size: 1rem;
+  text-align: center;
+}
+.sidebar img:not(.gif):not(.button88) { max-width: 100%; height: auto; border: 3px ridge var(--accent); }
+.sidebar p { margin: .5rem 0; }
+.sidebar textarea {
+  width: 100%; height: 5.5em; resize: vertical; font: .7rem/1.3 var(--font-mono);
+  border: 2px inset var(--face); background: #fff; color: #000;
+}
+.sidebar h2, .sidebar h3 {
+  font: bold .9rem var(--font-ui); margin: .75rem 0 .35rem; background: none; color: var(--accent-ink);
+  padding: 2px; background: var(--accent);
+}
+
+/* ---------------------------------------------------------- main window */
+
+.window {
+  background: var(--panel);
+  padding: 18px 26px 16px;
+  min-width: 0;
+}
+.window > * { max-width: var(--measure); }
+
+h1, h2, h3, h4 { font-family: var(--font-head); line-height: 1.2; }
+h1 { font-size: 2rem; margin: .2rem 0 1rem; color: var(--accent); }
+h2 {
+  font-size: 1.35rem;
+  margin: 1.75rem 0 .6rem;
+  padding: 3px 8px;
+  color: #fff;
+  background: linear-gradient(90deg, #000080, #1084d0);  /* Win95 title bar */
+}
+h3 { font-size: 1.15rem; margin: 1.4rem 0 .4rem; border-bottom: 2px dotted var(--accent-2); }
+h2 a.header-anchor, h3 a.header-anchor { color: inherit; text-decoration: none; }
+
+p, ul, ol, table, pre, blockquote { margin: 0 0 1rem; }
+.window ul { list-style-image: var(--bullet); }
+a:link { color: var(--link); }
+a:visited { color: var(--visited); }
+a:hover { color: var(--hover); }
+img { max-width: 100%; height: auto; }
+
+hr { border: 0; border-top: 3px groove var(--accent-2); margin: 1.5rem 0; }
+
+blockquote {
+  margin-left: 0; padding: .25rem 1rem;
+  border-left: 4px double var(--accent-2);
+  color: var(--muted);
+}
+
+code, pre { font-family: var(--font-mono); font-size: .9em; }
+pre {
+  background: #fff; padding: 10px 12px; overflow-x: auto;
+  border: 2px inset var(--face);
+}
+
+table { border-collapse: separate; border-spacing: 2px; border: 2px outset var(--face); }
+th, td { border: 1px inset var(--face); padding: 3px 8px; vertical-align: top; text-align: left; }
+th { background: var(--face); font-family: var(--font-ui); font-size: .95rem; }
+
+.page-updated { margin-top: 2rem; font-size: .9rem; color: var(--muted); font-style: italic; }
+.footnotes { font-size: .95rem; }
+
+/* ----------------------------------------------------------- components */
+
+.gif, .button88, .pixel { image-rendering: pixelated; vertical-align: middle; }
+.button88 { width: 88px; height: 31px; }
+.button-wall { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin: .5rem 0 1rem; }
+.button-wall a { line-height: 0; }
+
+.gif-hr { text-align: center; margin: 1rem 0; }
+
+.center { text-align: center; }
+.center > * { margin-left: auto; margin-right: auto; }
+
+.columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+
+.box { background: var(--face); padding: 3px; margin: 0 0 1rem; }
+.box-title {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff; font: bold .9rem var(--font-ui); padding: 2px 3px 2px 6px;
+}
+.box-buttons { display: flex; gap: 2px; }
+.box-buttons i {
+  font-style: normal; width: 16px; height: 14px; line-height: 12px; text-align: center;
+  background: var(--face); color: #000; font-size: .7rem;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff;
+}
+.box-body { background: var(--panel); padding: 10px 12px; margin-top: 3px; }
+.box-body > :last-child { margin-bottom: 0; }
+
+.news td { border: 0; padding: 2px 8px 6px 0; }
+.news { border: 0; }
+.news-date { white-space: nowrap; font-weight: bold; color: var(--accent); }
+
+.window .publications { padding-left: 1.5rem; list-style-image: url(/gifs/star-blink.gif); }
+.publications li { margin-bottom: .9rem; }
+.pub-title { font-weight: bold; }
+.pub-note { color: #c00000; font-weight: bold; }
+.pub-role { font-style: italic; }
+.pub-links { font-family: var(--font-ui); font-size: .9rem; }
+
+.webring {
+  text-align: center; font: bold .9rem var(--font-ui);
+  border: 3px double var(--accent); padding: 4px; background: var(--panel); margin: .75rem 0;
+}
+
+.construction { border: 2px solid #000; margin: 0 0 1rem; background: #fffbe0; }
+.construction-stripe { height: 14px; overflow: hidden; }
+/* The stripes slide via transform (compositor-only) on an over-wide strip,
+   rather than animating background-position, which repaints every frame. */
+.construction-stripe::before {
+  content: ""; display: block; height: 100%;
+  width: calc(100% + 28.28px); margin-left: -28.28px;
+  background: repeating-linear-gradient(-45deg, #000 0 10px, #ffd400 10px 20px);
+  animation: stripe-scroll 1s linear infinite;
+}
+.construction-body { padding: 8px 12px; font-family: var(--font-ui); font-size: 1rem; }
+.construction-body > :last-child { margin-bottom: 0; }
+
+.marquee {
+  overflow: hidden; white-space: nowrap;
+  border: 2px inset var(--face); background: #000; color: var(--marquee-ink);
+  font: bold 1rem var(--font-mono); padding: 3px 0; margin: 0 0 1rem;
+}
+.marquee-inner { display: inline-block; padding-left: 100%;
+                 animation: marquee var(--marquee-speed, 18s) linear infinite; }
+.marquee-inner > * { display: inline; margin: 0 2rem 0 0; }
+
+.footer { text-align: center; font-size: .95rem; padding-bottom: 1rem; }
+.footer p { margin: .4rem 0; }
+.footer .bevel-button { display: inline-flex; margin-top: .5rem; font-size: .85rem; }
+
+/* -------------------------------------------------------------- effects
+ * Use from Markdown:  ## Heading {.blink-colors}   or   [text]{.rainbow}
+ *
+ * Performance: effects that animate continuously only animate transform,
+ * opacity or filter, which the browser runs off the main thread without
+ * repainting. Stepped effects (blink, blink-colors) are driven by sparkle.js
+ * flipping html[data-blink] a few times a second; a CSS steps() animation
+ * would re-run style every frame. Without JS the CSS animations below still
+ * run, just less efficiently. */
+
+.blink        { animation: blink 1s steps(1) infinite; }
+.blink-colors { animation: blink-colors 1.2s steps(1) infinite; }
+.rainbow {
+  background: linear-gradient(90deg, #ff0000, #ff9900, #ffee00, #33cc33, #0099ff, #6633ff, #ff00cc, #ff0000);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  animation: rainbow 3s linear infinite;
+}
+/* filter/transform effects need a box; headings already are one. */
+:where(.rainbow, .glow):not(h1, h2, h3, h4, h5, h6) { display: inline-block; }
+:is(h1, h2, h3, h4):is(.rainbow, .wordart) { width: fit-content; }
+h2.rainbow { background-color: transparent; padding: 0; }   /* h2 has its own background */
+.glow   { animation: glow 1.6s ease-in-out infinite alternate; }
+/* With sparkle.js (which copies the text into data-text): a faint static
+   glow plus a copy of the text carrying the full glow, faded in and out.
+   Opacity animates on the compositor; text-shadow or drop-shadow would
+   repaint every frame. */
+.glow[data-text] { animation: none; position: relative; text-shadow: 0 0 2px var(--blink-1); }
+.glow[data-text]::after {
+  content: attr(data-text); content: attr(data-text) / "";
+  position: absolute; inset: 0; pointer-events: none;
+  color: transparent; text-shadow: 0 0 10px var(--blink-1), 0 0 18px var(--blink-2);
+  animation: glow-fade 1.6s ease-in-out infinite alternate;
+}
+.shake  { display: inline-block; animation: shake .35s linear infinite; }
+.wobble { display: inline-block; animation: wobble 2s ease-in-out infinite; }
+.sparkle::before, .sparkle::after {
+  content: ""; display: inline-block; width: 1em; height: 1em; vertical-align: -.1em;
+  background: url(/gifs/star-blink.gif) center / contain no-repeat;
+  image-rendering: pixelated; margin: 0 .3em;
+}
+.comic   { font-family: "Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive; }
+.wordart {
+  font-family: Impact, "Arial Black", var(--font-head); font-style: italic; letter-spacing: .02em;
+  background: linear-gradient(180deg, #fff200, #ff6a00 55%, #c00000);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(2px 2px 0 #000);
+}
+h2.wordart, h2.blink-colors, h2.glow, h2.comic { background: none; color: var(--accent); padding: 0; }
+h2.wordart { background: linear-gradient(180deg, #fff200, #ff6a00 55%, #c00000); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.small-caps { font-variant: small-caps; }
+.new-badge  { color: #fff; background: #d00000; font: bold .7em var(--font-ui); padding: 0 4px; vertical-align: .2em; }
+
+@keyframes blink { 50% { visibility: hidden; } }
+
+/* JS-driven stepping (see sparkle.js). */
+html[data-blink] .blink, html[data-blink] .blink-colors { animation: none; }
+html[data-blink$="h"] .blink { visibility: hidden; }
+html[data-blink^="1"] .blink-colors { color: var(--blink-1); }
+html[data-blink^="2"] .blink-colors { color: var(--blink-2); }
+html[data-blink^="3"] .blink-colors { color: var(--blink-3); }
+html[data-blink^="4"] .blink-colors { color: var(--blink-4); }
+@keyframes blink-colors {
+  0%  { color: var(--blink-1); } 25% { color: var(--blink-2); }
+  50% { color: var(--blink-3); } 75% { color: var(--blink-4); }
+}
+@keyframes rainbow { to { filter: hue-rotate(360deg); } }
+@keyframes glow {
+  from { text-shadow: 0 0 2px var(--blink-1); }
+  to   { text-shadow: 0 0 10px var(--blink-1), 0 0 18px var(--blink-2); }
+}
+@keyframes glow-fade { from { opacity: 0; } to { opacity: 1; } }
+
+
+@keyframes shake { 25% { transform: translate(1px, -1px); } 75% { transform: translate(-1px, 1px); } }
+@keyframes wobble { 50% { transform: rotate(-3deg) scale(1.05); } }
+@keyframes marquee { to { transform: translateX(-100%); } }
+@keyframes stripe-scroll { to { transform: translateX(28.28px); } }
+
+/* Cursor trail stars (sparkle.js). */
+.trail-star {
+  position: fixed; pointer-events: none; z-index: 99; width: 12px; height: 12px;
+  background: url(/gifs/star-blink.gif) center / contain no-repeat; image-rendering: pixelated;
+  animation: trail-fade .7s linear forwards;
+}
+@keyframes trail-fade { to { opacity: 0; transform: translateY(14px) scale(.4); } }
+
+/* ------------------------------------------------ motion off, on request */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .marquee { white-space: normal; }
+  .marquee-inner { padding-left: 8px; }
+  .glow::after { opacity: 0; }
+}
+html.calm *, html.calm *::before, html.calm *::after { animation: none !important; transition: none !important; }
+html.calm .marquee { white-space: normal; }
+html.calm .glow::after { opacity: 0; }
+html.calm .marquee-inner { padding-left: 8px; }
+
+/* --------------------------------------------------------------- mobile */
+
+@media (max-width: 760px) {
+  body { font-size: 1.0625rem; }
+  .page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "banner" "nav" "main" "side" "foot";
+    grid-template-rows: none;
+    gap: 8px; padding: 8px;
+  }
+  .site-title { font-size: 2.2rem; }
+  .banner { padding: 12px 14px 10px; }
+  .nav ul { display: flex; flex-wrap: wrap; }
+  .nav li { flex: 1 1 auto; }
+  .nav a { justify-content: center; }
+  .window { padding: 14px 16px; }
+  .window table { display: block; overflow-x: auto; }
+  .sidebar img:not(.gif):not(.button88) { max-width: 10rem; }
+}
+
+@media print {
+  body { background: #fff; }
+  .nav, .sidebar, .footer, .marquee, .construction-stripe { display: none; }
+  .page { display: block; }
+  .window { box-shadow: none; }
+  *, *::before, *::after { animation: none !important; }
+}
