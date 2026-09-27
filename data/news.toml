@@ -1,10 +1,14 @@
-# Newest first. `text` is Markdown. `new = true` adds a flashing NEW! badge.
+# Newest first. `text` is Markdown.
+#
+# `date` can be "January 2026" (month only; counts as the 1st), "2026-01",
+# "January 15, 2026", "2026-01-15", or a bare TOML date (date = 2026-01-15).
+# Rows dated within new_for_months (site.toml) of the visitor's today get a
+# NEW! badge automatically, and so does a heading with {{ new from=news }}.
 # Ported from the old main.html.
 
 [[item]]
 date = "January 2026"
 text = "Started working as a Research Associate Intern at AMD"
-new = true
 
 [[item]]
 date = "December 2025"

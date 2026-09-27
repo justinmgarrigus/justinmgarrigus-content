@@ -5,7 +5,12 @@
 #            If omitted, `role` is shown instead.
 #   role     e.g. "main author", "coauthor"
 #   venue    Markdown, italicised
-#   year     shown after the venue
+#   year     shown after the venue (defaults to the year of `date`)
+#   date     when it came out (published, presented, accepted...). Optional,
+#            any format news.toml takes ("2026-09-15", "September 2026").
+#            While it's within new_for_months (site.toml) the entry gets a
+#            NEW! badge, as does its section heading via
+#            {{ new from=publications kind=... }}. No date, no badge.
 #   kind     free-form tag for filtering: paper, poster, thesis, ...
 #   note     highlighted status line, e.g. "Best Paper!" or "In progress"
 #   [links]  label = url pairs, shown as [label] links

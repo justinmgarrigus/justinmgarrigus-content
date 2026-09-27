@@ -39,9 +39,10 @@ import re
 import shlex
 import shutil
 import socketserver
+import subprocess
 import sys
 import tomllib
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import partial
 from pathlib import Path
 
@@ -113,6 +114,71 @@ def output_path(md_path: Path) -> Path:
 def url_for(out: Path) -> str:
     url = "/" + out.as_posix()
     return url[: -len("index.html")] if url.endswith("/index.html") else url
+
+
+# --------------------------------------------------------------------------
+# Dates
+# --------------------------------------------------------------------------
+
+# What counts as "the site changed" for the site-wide Updated date.
+CONTENT = ["pages", "data", "static", "site.toml"]
+
+
+def parse_date(value, where: str) -> tuple[date, str]:
+    """
+    Accepts a TOML date or a string like "2026-01-15", "2026-01",
+    "January 15, 2026" or "January 2026". Returns (date, display text);
+    month-only dates count as the 1st and display as "January 2026".
+    """
+    if isinstance(value, datetime):
+        value = value.date()
+    if isinstance(value, date):
+        return value, f"{value:%B} {value.day}, {value.year}"
+    text = str(value).strip()
+    for fmt, precise in (("%Y-%m-%d", True), ("%B %d, %Y", True),
+                         ("%Y-%m", False), ("%B %Y", False)):
+        try:
+            d = datetime.strptime(text, fmt).date()
+        except ValueError:
+            continue
+        return d, (f"{d:%B} {d.day}, {d.year}" if precise else f"{d:%B %Y}")
+    raise BuildError(f'{where}: can\'t read date "{text}" (try 2026-01-15, '
+                     f'2026-01, "January 15, 2026" or "January 2026")')
+
+
+def last_changed(paths: list[Path]) -> date:
+    """
+    When any of these files/directories last changed: the newest git commit
+    touching them, or the modification time of any with uncommitted edits.
+    Outside git, just the newest modification time (unreliable after a
+    fresh clone, which resets them all).
+    """
+    rel = [str(p.relative_to(ROOT)) for p in paths if p.exists()]
+
+    def mtime(p: Path) -> date:
+        return datetime.fromtimestamp(p.stat().st_mtime).date()
+
+    def git(*args) -> str:
+        return subprocess.run(["git", *args, "--", *rel], cwd=ROOT, check=True,
+                              capture_output=True, text=True).stdout
+
+    try:
+        committed = git("log", "-1", "--format=%cs").strip()
+        dirty = git("status", "--porcelain", "--untracked-files=all").splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        files = [f for p in paths if p.exists()
+                 for f in ([p] if p.is_file() else p.rglob("*")) if f.is_file()]
+        return max(map(mtime, files), default=date.today())
+
+    dates = [date.fromisoformat(committed)] if committed else []
+    for line in dirty:
+        f = ROOT / line[3:].split(" -> ")[-1].strip('"')
+        dates.append(mtime(f) if f.exists() else date.today())   # deleted: today
+    return max(dates, default=date.today())
+
+
+def display_date(d: date) -> str:
+    return f"{d:%B} {d.day}, {d.year}"
 
 
 # --------------------------------------------------------------------------
@@ -355,42 +421,107 @@ def buttons(env, group="friends"):
             + "".join(button_html(b) for b in items) + "</div>")
 
 
+def new_marker(d: date) -> str:
+    """
+    A placeholder that sparkle.js fills with the NEW! GIF while `d` is within
+    new_for_months (site.toml) of the visitor's today, so badges expire on
+    their own without rebuilding. Without JS, no badge.
+    """
+    return f'<span class="new-if-recent" data-date="{d.isoformat()}"></span>'
+
+
+def news_items(env) -> list[tuple[date, str, dict]]:
+    return [(*parse_date(it["date"], f"data/news.toml item {i + 1}"), it)
+            for i, it in enumerate(env["data"].get("news", {}).get("item", []))]
+
+
 @shortcode
 def news(env, limit=None):
     """{{ news }} / {{ news limit=5 }} -- a dated table from data/news.toml."""
-    items = env["data"].get("news", {}).get("item", [])
+    items = news_items(env)
     if limit:
         items = items[: int(limit)]
     rows = []
-    for it in items:
-        badge = (" " + gif(env, "new.gif", "new!")) if it.get("new") else ""
-        rows.append(f'<tr><td class="news-date">{esc(it["date"])}</td>'
-                    f'<td>{md_inline(it["text"], env)}{badge}</td></tr>')
+    for d, shown, it in items:
+        rows.append(f'<tr><td class="news-date"><time datetime="{d.isoformat()}">'
+                    f'{esc(shown)}</time></td>'
+                    f'<td>{md_inline(it["text"], env)} {new_marker(d)}</td></tr>')
     return f'<table class="news">{"".join(rows)}</table>'
+
+
+def pub_items(env, kind=None) -> list[tuple[date | None, dict]]:
+    """Publications (optionally one kind) with their parsed `date`, if any."""
+    items = env["data"].get("publications", {}).get("pub", [])
+    out = []
+    for i, p in enumerate(items):
+        if kind and p.get("kind") != kind:
+            continue
+        d = parse_date(p["date"], f"data/publications.toml pub {i + 1}")[0] if p.get("date") else None
+        out.append((d, p))
+    return out
+
+
+@shortcode
+def new(env, when=None, **kwargs):
+    """
+    {{ new 2026-01-15 }}                   -- NEW! badge while that date is recent.
+    {{ new from=news }}                    -- ...while the newest news item is.
+    {{ new from=publications kind=paper }} -- ...while the newest dated paper is
+                                              (kind optional: any publication).
+    """
+    source = kwargs.pop("from", None)
+    kind = kwargs.pop("kind", None)
+    if kwargs or (when is None) == (source is None) or (kind and source != "publications"):
+        raise TypeError("use {{ new DATE }}, {{ new from=news }} or "
+                        "{{ new from=publications [kind=...] }}")
+    if source is None:
+        return new_marker(parse_date(when, env["page_src"])[0])
+    if source == "news":
+        dates = [d for d, _, _ in news_items(env)]
+    elif source == "publications":
+        dates = [d for d, _ in pub_items(env, kind) if d]
+    else:
+        raise TypeError(f"from={source}: expected news or publications")
+    return new_marker(max(dates)) if dates else ""
 
 
 @shortcode
 def publications(env, kind=None):
     """{{ publications }} / {{ publications kind=thesis }} -- from data/publications.toml."""
-    items = env["data"].get("publications", {}).get("pub", [])
-    if kind:
-        items = [p for p in items if p.get("kind") == kind]
     me = env["site"].get("author", "")
     out = []
-    for p in items:
+    for d, p in pub_items(env, kind):
         authors = ", ".join(
             f"<b>{esc(a)}</b>" if a == me else esc(a) for a in p.get("authors", []))
         authors = authors or f'<span class="pub-role">{md_inline(p.get("role", ""), env)}</span>'
         links = " ".join(f'[<a href="{esc(url)}">{esc(label)}</a>]'
                          for label, url in p.get("links", {}).items())
         venue = f'<i>{md_inline(p["venue"], env)}</i>' if p.get("venue") else ""
-        where = ", ".join(x for x in (venue, esc(p.get("year", ""))) if x)
+        year = p.get("year") or (d.year if d else "")
+        where = ", ".join(x for x in (venue, esc(year)) if x)
         note = f' &mdash; <span class="pub-note">{md_inline(p["note"], env)}</span>' if p.get("note") else ""
         links = f'<br><span class="pub-links">{links}</span>' if links else ""
         out.append(
-            f'<li><span class="pub-title">{md_inline(p["title"], env)}</span><br>'
+            f'<li><span class="pub-title">{md_inline(p["title"], env)}</span>'
+            f'{new_marker(d) if d else ""}<br>'
             f'{authors}<br>{where}{note}{links}</li>')
     return f'<ul class="publications">{"".join(out)}</ul>'
+
+
+@shortcode
+def counter(env, start="2026-01-01", per_day="100"):
+    """
+    {{ counter start=2026-01-01 per_day=100 }} -- a pretend visitor counter.
+    sparkle.js extrapolates it from the visitor's clock: per_day visitors a
+    day since midnight UTC on `start`. Shows "∞" without JS.
+    """
+    d = parse_date(start, env["page_src"])[0]
+    try:
+        rate = float(per_day)
+    except ValueError:
+        raise TypeError(f"per_day={per_day!r} is not a number") from None
+    return (f'<span class="visitor-counter" data-start="{d.isoformat()}" '
+            f'data-per-day="{rate:g}">&infin;</span>')
 
 
 @shortcode
@@ -459,12 +590,17 @@ def fill(template: str, ctx: dict) -> str:
 
 
 def page_updated(meta: dict, path: Path) -> str:
-    when = meta.get("updated")
-    if isinstance(when, (date, datetime)):
-        return when.strftime("%B %-d, %Y")
-    if when:
-        return str(when)
-    return datetime.fromtimestamp(path.stat().st_mtime).strftime("%B %-d, %Y")
+    """The page's own date: `updated` in front matter, else last change."""
+    if meta.get("updated"):
+        return parse_date(meta["updated"], str(path.relative_to(ROOT)))[1]
+    return display_date(last_changed([path]))
+
+
+def site_updated(site: dict) -> date:
+    """Site-wide date for the banner: `updated` in site.toml, else last change."""
+    if site.get("updated"):
+        return parse_date(site["updated"], "site.toml")[0]
+    return last_changed([ROOT / p for p in CONTENT])
 
 
 def build_page(path: Path, site: dict, data: dict, layout: str) -> tuple[Path, str]:
@@ -502,12 +638,16 @@ def build_page(path: Path, site: dict, data: dict, layout: str) -> tuple[Path, s
         "footer": footer,
         "updated": esc(env["page_updated"]),
         "trail": "true" if site.get("cursor_trail") else "false",
+        "new_months": esc(site.get("new_for_months", 3)),
+        "site_updated": display_date(site["_updated"]),
+        "site_updated_iso": site["_updated"].isoformat(),
     }
     return out, fill(layout, ctx)
 
 
 def build(out_dir: Path, drafts: bool) -> list[Path]:
     site = load_toml(ROOT / "site.toml")
+    site["_updated"] = site_updated(site)
     data = load_data()
     layout = (THEME / "layout.html").read_text(encoding="utf-8")
 

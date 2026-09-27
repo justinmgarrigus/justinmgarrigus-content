@@ -10,7 +10,7 @@
   <style>{{ theme_css }} {{ page_css }}</style>
   <!-- Applied before first paint so calm mode never flashes animations. -->
   <script>try{if(localStorage.getItem("calm")==="1")document.documentElement.classList.add("calm")}catch(e){}</script>
-  <script src="/theme/sparkle.js" defer data-trail="{{ trail }}"></script>
+  <script src="/theme/sparkle.js" defer data-trail="{{ trail }}" data-new-months="{{ new_months }}"></script>
 </head>
 <body class="{{ body_class }}">
 <a class="skip" href="#main">Skip to content</a>
@@ -19,6 +19,7 @@
   <header class="banner">
     <div class="site-title {{ site_title_class }}"><a href="/">{{ site_title }}</a></div>
     <div class="tagline">{{ tagline }}</div>
+    <p class="site-updated">Updated <time datetime="{{ site_updated_iso }}">{{ site_updated }}</time></p>
   </header>
 
   <nav class="nav" aria-label="Site">{{ nav }}</nav>
@@ -26,7 +27,7 @@
   <main id="main" class="window">
     {{ heading }}
     {{ content }}
-    <p class="page-updated">Last updated {{ updated }}</p>
+    <p class="page-updated">This page last updated {{ updated }}</p>
   </main>
 
   <aside class="sidebar">{{ sidebar }}</aside>
@@ -34,7 +35,7 @@
   <footer class="footer">
     {{ footer }}
     <button type="button" id="calm-toggle" class="bevel-button" aria-pressed="false">
-      Stop the sparkles
+      Reduce movement
     </button>
   </footer>
 

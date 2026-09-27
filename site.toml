@@ -11,11 +11,21 @@ description = "Justin Garrigus: computer architecture research, GPUs, CPUs and F
 
 # Effect classes for the big title in the banner and for each page's <h1>.
 # Any of: blink blink-colors rainbow glow shake wobble sparkle comic wordart
-site_title_class = "sparkle"
+site_title_class = "rainbow"
 title_class = ""
 
+# NEW! badges: dated items (news rows, {{ new ... }}) show one while their
+# date is within this many months of the visitor's today. Checked in the
+# browser, so badges expire on their own without a rebuild.
+new_for_months = 3
+
+# The banner shows "Updated <date>": the last git commit touching pages/,
+# data/, static/ or site.toml, or the newest uncommitted edit to them.
+# Uncomment to pin it instead.
+# updated = 2026-09-27
+
 # Star trail behind the mouse pointer (skipped for touch, reduced motion,
-# and anyone who clicks "Stop the sparkles").
+# and anyone who clicks "Reduce movement").
 cursor_trail = true
 
 # Files already in the publish repo that a publish must not delete, in
@@ -28,23 +38,12 @@ sidebar = """
 
 **Welcome to my homepage!**
 
-You are visitor number
-[ **∞** ]{.blink-colors}
-
-### Link to me!
-
-{{ buttons group=me }}
-
-<small>Copy this onto your page:</small>
-<textarea readonly aria-label="HTML for linking to this site">&lt;a href="https://justinmgarrigus.github.io/"&gt;&lt;img src="https://justinmgarrigus.github.io/buttons/justinmgarrigus.gif" width="88" height="31" alt="Justin Garrigus"&gt;&lt;/a&gt;</textarea>
+Visitors: 
+[ **{{ counter start=2026-01-01 per_day=100 }}** ]{.blink-colors}
 """
 
 footer = """
 {{ hr }}
-
-{{ buttons group=friends }}
-
-This site is hand-written in Markdown. No cookies, no tracking, no JavaScript required.
 """
 
 # Everything below is a TOML table, so plain `key = value` settings must go
@@ -54,15 +53,17 @@ This site is hand-written in Markdown. No cookies, no tracking, no JavaScript re
 [[nav]]
 label = "Home"
 href = "/"
-icon = "/gifs/star-blink.gif"
+icon = "/gifs/globe.gif"
 
 [[nav]]
 label = "Research"
 href = "/research/"
+icon = "/gifs/book.gif" 
 
 [[nav]]
 label = "CV (PDF)"
 href = "/cv/resume.pdf"
+icon = "/gifs/bird.gif" 
 
 # Old pages not yet ported to pages/*.md. Uncomment as each one lands, or
 # the link checker will flag them.

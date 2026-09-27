@@ -45,7 +45,11 @@ The full cheat sheet, rendered, is `pages/sparkle.md` (a draft; view it at
     ## News {.blink-colors}           effects on headings
     Some [blinking]{.blink} words.     ...or on any span of text
     {{ gif star-blink.gif }}           a GIF from static/gifs/
-    {{ news limit=5 }}                 data/news.toml as a table
+    {{ news limit=5 }}                 data/news.toml as a table (recent rows get NEW!)
+    {{ new from=news }}                NEW! while the latest news is recent
+    {{ new from=publications kind=paper }}   ...or the latest dated paper
+    {{ new 2026-09-01 }}               NEW! while that date is recent
+    {{ counter start=2026-01-01 per_day=100 }}   pretend visitor counter
     {{ publications kind=paper }}      data/publications.toml
     {{ buttons group=friends }}        a wall of 88x31s from data/buttons.toml
 
@@ -63,8 +67,8 @@ Raw HTML also works anywhere in a page.
 
 - Body text is on a solid panel, capped at ~44rem wide; decoration stays in
   the frame and headings.
-- `prefers-reduced-motion` turns every animation off. The footer's "Stop the
-  sparkles" button does the same (and freezes GIFs) for anyone, remembered
+- `prefers-reduced-motion` turns every animation off. The footer's "Reduce
+  movement" button does the same (and freezes GIFs) for anyone, remembered
   per browser.
 - Under 760px wide the layout is one column with the nav as a row of buttons.
 - The site works with JavaScript off; `sparkle.js` only adds the toggle and

@@ -16,7 +16,7 @@ working on projects in GPUs, CPUs, and FPGAs with my advisor Dr. Lizy John.
 Between January and August 2026, I'll be working as a Research Associate Intern
 at AMD developing scale-up/scale-out GPU systems.
 
-## News {{ gif new.gif alt="new!" }}
+## News {{ new from=news }}
 
 {{ news limit=5 }}
 

@@ -8,19 +8,14 @@ This section describes research projects I've worked on which were made with
 the intent of being *published* or otherwise *presented* in some academic
 format.
 
-::: construction
-**Under construction!** Author lists and statuses below were ported from the
-old site and are being brought up to date.
-:::
-
-## Papers
+## Papers {{ new from=publications kind=paper }}
 
 {{ publications kind=paper }}
 
-## Theses
+## Theses {{ new from=publications kind=thesis }}
 
 {{ publications kind=thesis }}
 
-## Posters
+## Posters {{ new from=publications kind=poster }}
 
 {{ publications kind=poster }}

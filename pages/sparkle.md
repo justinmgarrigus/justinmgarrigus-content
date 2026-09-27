@@ -112,6 +112,17 @@ Two
 
 {{ webring "Arch Webring" https://example.com https://example.com/prev https://example.com/next }}
 
+`{{ new 2026-09-01 }}` → {{ new 2026-09-01 }} (a NEW! badge while the
+date is within `new_for_months` of today, checked in the browser;
+`{{ new from=news }}` uses the newest news item, as on the News heading;
+`{{ new from=publications kind=paper }}` the newest dated paper, as on the
+Research page). News rows, and publications with a `date`, get this
+automatically.
+
+`{{ counter start=2026-01-01 per_day=100 }}` → {{ counter start=2026-01-01 per_day=100 }}
+(a pretend visitor counter, extrapolated in the browser from the start date
+and daily rate; "∞" without JS).
+
 `{{ updated }}` → {{ updated }} (from `updated = 2026-09-26` in front
 matter, else the file's modification time).
 
