@@ -11,6 +11,10 @@ date = "August 2026"
 text = "Concluded my internship at AMD and returned full-time to UT Austin"
 
 [[item]]
+date = "January 2026" 
+text = "Paper accepted at HPCA ([link](https://ieeexplore.ieee.org/abstract/document/11408597))!"
+
+[[item]]
 date = "January 2026"
 text = "Started working as a Research Associate Intern at AMD"
 
